@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public enum BlockColor
 {
@@ -7,21 +7,9 @@ public enum BlockColor
     Blue,
     Yellow
 }
- 
+
 public class Block : MonoBehaviour
 {
     public BlockColor blockColor;
-
-    public void CheckColor(BlockColor laserColor)
-    {
-        if (blockColor == laserColor)
-        {
-            Explode();
-        }
-    }
-
-    void Explode()
-    {
-        Destroy(gameObject);
-    }
 }
+

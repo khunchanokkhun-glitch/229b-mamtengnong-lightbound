@@ -1,12 +1,32 @@
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class LaserShoot : MonoBehaviour
 {
     public float distance = 20f;
     public GameObject laserPrefab;
     public Transform firePoint;
+    public GameObject winUI;
 
-    public BlockColor currentColor; // สีที่ยิง
+    public TextMeshProUGUI scoreText;
+    public int score = 0;
+
+    [Header("UI")]
+    public Image colorUI;
+    public Image nextColorUI;
+
+    public BlockColor currentColor;
+    public BlockColor nextColor;
+
+    void Start()
+    {
+        currentColor = (BlockColor)Random.Range(0, 4);
+        nextColor = (BlockColor)Random.Range(0, 4);
+
+        UpdateColorUI();
+        UpdateScoreUI();
+    }
 
     void Update()
     {
@@ -18,8 +38,12 @@ public class LaserShoot : MonoBehaviour
 
     void ShootLaser()
     {
-        //  สุ่ม 4 สี
-        currentColor = (BlockColor)Random.Range(0, 4);
+        BlockColor shootColor = currentColor;
+
+        // เปลี่ยนสี
+        currentColor = nextColor;
+        nextColor = (BlockColor)Random.Range(0, 4);
+        UpdateColorUI();
 
         Vector2 dir = firePoint.up;
 
@@ -35,45 +59,73 @@ public class LaserShoot : MonoBehaviour
 
             if (block != null)
             {
-                if (block.blockColor == currentColor)
+                if (block.blockColor == shootColor)
                 {
                     Destroy(hit.collider.gameObject);
+
+                    // ⭐ คะแนนตามสี
+                    int gained = GetScore(shootColor);
+                    score += gained;
+
+                    Debug.Log("+" + gained + " คะแนน");
+
+                    UpdateScoreUI();
+                    if (score >= 200)
+                    {
+                        winUI.SetActive(true);
+                    }
                 }
             }
         }
-
-        //  สร้างเลเซอร์
+       
+        // ยิงเลเซอร์
         GameObject laser = Instantiate(laserPrefab, firePoint.position, firePoint.rotation);
 
-        //  เปลี่ยนสีเลเซอร์
         SpriteRenderer sr = laser.GetComponent<SpriteRenderer>();
+        sr.color = GetColor(shootColor);
 
-        switch (currentColor)
-        {
-            case BlockColor.Red:
-                sr.color = Color.red;
-                break;
-            case BlockColor.Green:
-                sr.color = Color.green;
-                break;
-            case BlockColor.Blue:
-                sr.color = Color.blue;
-                break;
-            case BlockColor.Yellow:
-                sr.color = Color.yellow;
-                break;
-        }
-
-        //  ปรับความยาวเลเซอร์
         laser.transform.localScale = new Vector3(0.1f, length, 1f);
-
-        //  ขยับให้เริ่มจากปากยาน
         laser.transform.position = firePoint.position + (Vector3)(dir * length / 2f);
 
-        //  ลบเลเซอร์
         Destroy(laser, 0.1f);
 
-        // debug
         Debug.DrawRay(firePoint.position, dir * length, Color.white, 0.2f);
+    }
+
+    //  คะแนนแต่ละสี
+    int GetScore(BlockColor color)
+    {
+        switch (color)
+        {
+            case BlockColor.Red: return 10;
+            case BlockColor.Green: return 20;
+            case BlockColor.Blue: return 30;
+            case BlockColor.Yellow: return 50;
+        }
+        return 0;
+    }
+
+    //  สีเลเซอร์
+    Color GetColor(BlockColor color)
+    {
+        switch (color)
+        {
+            case BlockColor.Red: return Color.red;
+            case BlockColor.Green: return Color.green;
+            case BlockColor.Blue: return Color.blue;
+            case BlockColor.Yellow: return Color.yellow;
+        }
+        return Color.white;
+    }
+
+    void UpdateScoreUI()
+    {
+        scoreText.text = "Score: " + score;
+    }
+
+    void UpdateColorUI()
+    {
+        colorUI.color = GetColor(currentColor);
+        nextColorUI.color = GetColor(nextColor);
     }
 }
