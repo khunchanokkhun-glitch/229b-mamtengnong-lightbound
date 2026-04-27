@@ -116,8 +116,7 @@ public class LaserShoot : MonoBehaviour
 
         Time.timeScale = 0f;
     }
-
-   
+    
 
     // ======================
     // ปุ่ม Restart
