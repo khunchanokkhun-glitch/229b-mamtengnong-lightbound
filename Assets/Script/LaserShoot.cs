@@ -24,6 +24,11 @@ public class LaserShoot : MonoBehaviour
     public int score = 0;
     public int winScore = 300;
 
+    // 👇 เพิ่มส่วนนี้เข้ามาสำหรับระบบเสียง
+    [Header("Sound")]
+    public AudioSource audioSource;
+    public AudioClip shootSound;
+
     public BlockColor currentColor;
     public BlockColor nextColor;
 
@@ -47,7 +52,8 @@ public class LaserShoot : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        // เช็กด้วยว่า Time.timeScale ไม่เป็น 0 (เกมไม่ถูก Pause หรือ Win ไปแล้ว) ถึงจะยิงได้
+        if (Input.GetMouseButtonDown(0) && Time.timeScale > 0f)
         {
             ShootLaser();
         }
@@ -55,6 +61,12 @@ public class LaserShoot : MonoBehaviour
 
     void ShootLaser()
     {
+        // 👇 สั่งให้เล่นเสียงยิงเลเซอร์
+        if (audioSource != null && shootSound != null)
+        {
+            audioSource.PlayOneShot(shootSound);
+        }
+
         BlockColor shootColor = currentColor;
 
         // เปลี่ยนสีถัดไป
@@ -116,7 +128,6 @@ public class LaserShoot : MonoBehaviour
 
         Time.timeScale = 0f;
     }
-    
 
     // ======================
     // ปุ่ม Restart
